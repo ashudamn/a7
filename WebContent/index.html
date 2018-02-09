@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script type="text/javascript" src="jquery.tablesorter.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){
+	var buttons=[];
+	var headers=[];
+	$("#bttHello").click(function(e){
+		e.preventDefault();
+		var driver=$('#driver').val();
+		var url=$('#url').val();
+		var username=$('#username').val();
+		var password=$('#password').val();
+		var query=$('#query').val();
+		alert("on click");
+		$.ajax({
+			type : "GET",
+			dataType:'json',
+			url  : "AjaxServlet",
+			contentType:"application/json; charset=utf-8",
+			data : {driver:driver,url:url,username:username,password:password,query:query},
+			success:function(response){
+				$('#result').empty();
+				console.log(response[0]);
+				var input='<tr>';
+				for (var key in response[0]){
+					console.log(key);
+					input=input+'<th id='+key+'>'+key+'</th>';
+					headers.push(key);
+				}
+				input=input+'</tr>';
+				$('#result').append(input);
+				input='';
+				$.each(response,function(index,element){
+				console.log(element)
+				input=input+'<tr>';
+				<!--populate the json data in table-->
+				$.each(element,function(ind,ele){
+					input=input+'<td>'+ele+'</td>';
+				});
+				input=input+'</tr>';
+				$('#result').append(input);
+				input='';
+				});
+				console.log(response);
+				console.log(headers);
+			},
+			error:function(e){
+				
+			}
+		});
+	});
+	$("#hidetable").click(function(event){
+		$('#result').toggle();
+	});
+	$('#sort').click(function(event){
+		event.preventDefault();
+		var param=$('#param').val();
+		var order=$('#order').val();
+		var num=$('#num_records').val();
+		$.ajax({
+			type:"GET",
+			dataType:'json',
+			url  : "SortedOutput",
+			contentType:"application/json; charset=utf-8",
+			data : {param:param,order:order,num:num},
+			success:function(response){
+				$('#result').empty();
+				var input='<tr>';
+				for (var key in response[0]){
+					console.log(key);
+					input=input+'<th id='+key+'>'+key+'</th>';
+					headers.push(key);
+				}
+				input=input+'</tr>';
+				$('#result').append(input);
+				input='';
+				$.each(response,function(index,element){
+				console.log(element)
+				input=input+'<tr>';
+				<!--populate the json data in table-->
+				$.each(element,function(ind,ele){
+					input=input+'<td>'+ele+'</td>';
+				});
+				input=input+'</tr>';
+				$('#result').append(input);
+				input='';
+				});
+				console.log(response);
+			},
+			error:function(e){
+				
+			}
+		});
+	});
+	$('#prev').click(function(event){
+		
+	});
+});
+</script>
+<body>
+<form action="AjaxServlet">
+Driver <input type="text" id="driver" value="com.mysql.jdbc.Driver" name="driver"><br>
+Url <input type="text" id="url" value="jdbc:mysql://localhost:3306/northwind" name="url"><br>
+Username <input type="text" id="username" name="username" value="root"><br>
+password <input type="password" id="password" name="password"><br>
+Query<input type="text" id="query" name="query" value="select * from categories"><br>
+<input type="submit" value="submit" id="bttHello">
+<br>
+</form>
+<h1>The result will come</h1>
+<div id="cmon">
+<table id="result" border="1"></table>
+</div>
+<button type="button" id="hidetable">HIDE/SHOW TABLE</button>
+<form action="SortedOutput">
+Sort By Parameter:<input type="text" id="param"><br>
+ASC/DESC:<input type="text" id="order"><br>
+NUMBER OF RECORDS PER PAGE:<input type="text" id="num_records"><br>
+<input type="submit" value="submit" id="sort">
+</form>
+<button id="prev">PREV</button>
+<button id="next">NEXT</button>
+</body>
+</html>
